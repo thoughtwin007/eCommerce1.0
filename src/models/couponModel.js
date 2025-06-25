@@ -1,4 +1,5 @@
 import mongoose, { mongo } from "mongoose";
+import User from "./userModel.js";
 const couponSchema = new mongoose.Schema({
     code: {
         type: String,
@@ -33,5 +34,9 @@ const couponSchema = new mongoose.Schema({
         default: true
     }
 }, { timestamps: true })
+couponSchema.pre('save', async function (next) {
+    if (this.validTill - this.validFrom <= 0) this.isActive = false
+    next();
+})
 const Coupon = new mongoose.model("Coupon", couponSchema)
 export default Coupon;

@@ -7,20 +7,16 @@ const getAllProducts = async () => {
         status: 200
     }
 };
-
-
 const getProductById = async (data) => {
-    const product = await Product.findById(data.id);
+    const product = await Product.findById(data);
     if (!product) throw new CustomError("product not found", 404);
     return {
         product,
         status: 200
     }
 };
-
-
-const createProduct = async (data) => {
-    const product = await Product.create(req.body);
+const createProduct = async (sellerId, data) => {
+    const product = await Product.create({ sellerId, ...data });
     return {
         product,
         status: 200,
@@ -29,8 +25,10 @@ const createProduct = async (data) => {
 };
 
 
-const updateProduct = async (data) => {
-    const product = await Product.findByIdAndUpdate(data.id, data, {
+const updateProduct = async (productId, sellerId, updatedData) => {
+    const productInfo = await Product.findById(productId)
+    if (productInfo.sellerId != sellerId) throw new CustomError("product belongs to another seller", 400)
+    const product = await Product.findByIdAndUpdate(productId, updatedData, {
         new: true,
     });
     if (!product) throw new CustomError('product not found', 404)
@@ -40,10 +38,10 @@ const updateProduct = async (data) => {
         msg: "product updated"
     }
 };
-
-
-const deleteProduct = async (data) => {
-    const product = await Product.findByIdAndDelete(data.id);
+const deleteProduct = async (productId, sellerId) => {
+    const productInfo = await Product.findById(productId)
+    if (productInfo.sellerId != sellerId) throw new CustomError("product belongs to another seller", 400)
+    const product = await Product.findByIdAndDelete(productId);
     if (!product) throw new CustomError('product not found', 404)
     return {
         product,
@@ -51,3 +49,4 @@ const deleteProduct = async (data) => {
         status: 200
     };
 };
+export default { deleteProduct, getAllProducts, updateProduct, createProduct, getProductById }

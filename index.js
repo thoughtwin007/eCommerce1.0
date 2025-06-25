@@ -1,7 +1,9 @@
 import express from "express"
 import "dotenv/config"
 import mongoose from "mongoose";
-import router from "./src/routes/userRoutes.js";
+import authrouter from "./src/routes/userRoutes.js";
+import productRoutes from "./src/routes/productRoutes.js"
+import cartRoutes from "./src/routes/cartRoutes.js"
 const app = express();
 app.use(express.json())
 const port = process.env.PORT || 3000;
@@ -12,12 +14,15 @@ mongoose.connect(process.env.MONGO_URL).then(() => {
         console.log("server is listening on port:", port)
     })
 })
-app.use("/api/v1/", router)
+app.use("/api/v1/auth", authrouter);
+app.use('/api/v1/products', productRoutes);
+app.use('/api/v1/cart', cartRoutes)
+
 app.use((err, req, res, next) => {
-    console.log(err.statusCode, 'dfjgkidfhgkluidfhgkuidhfg')
+    console.log("statusCode:", err.statusCode)
     const status = err.status || "Something went wrong";
     const msg = err.message || "Something went wrong";
     console.log("msg:", msg)
-    res.status(err.statusCode).json({ status, msg, stack: err.stack });
+    res.json({ status, msg, stack: err.stack });
 });
 

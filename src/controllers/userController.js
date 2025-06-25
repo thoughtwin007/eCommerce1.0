@@ -10,4 +10,8 @@ const register = asyncErrorHandler(async (req, res, next) => {
 
     res.status(info.status).json(info)
 })
-export default { register }
+const login = asyncErrorHandler(async (req, res, next) => {
+    let info = await userServices.loginUser(req.body)
+    res.status(info.status).json(info)
+})
+export default { register, login }

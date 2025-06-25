@@ -1,10 +1,10 @@
 import jwt from "jsonwebtoken"
-let key = process.env.SECRET_KEY
+
 function genToken(data) {
-    let token = jwt.sign({ data }, key)
-    return jwt.sign({ id: data._id, role: data.role })
+    return jwt.sign({ id: data._id, role: data.role }, "shhhhh111")
 }
 function verifyToken(token) {
-    return jwt.verify(token, key)
+    console.log("verifyToken: ", token)
+    return jwt.verify(token, "shhhhh111")
 }
 export default { verifyToken, genToken };

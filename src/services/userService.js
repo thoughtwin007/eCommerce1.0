@@ -9,10 +9,12 @@ const registerUser = async (info) => {
         throw new CustomError("User with this email already exists", 400);
     }
     const newUser = await User.create({ ...info });
+    let newToken = token.genToken(newUser)
     return {
         ...newUser.toObject(),
         status: 200,
         msg: "User registered successfully",
+        newToken
     };
 };
 const loginUser = async (info) => {

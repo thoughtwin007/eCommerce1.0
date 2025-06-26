@@ -1,29 +1,32 @@
-import couponService from "../services/couponService.js";
-
-const createCoupon = async (req, res) => {
-    const couponInfo = await couponService.createCoupon(req.body);
+import couponServices from "../services/couponServices.js";
+import asyncErrorHandler from "../middlewares/errorHandlers/asyncErrorHandler.js";
+const createCoupon = asyncErrorHandler(async (req, res) => {
+    let sellerId = req.userInfo.id;
+    const couponInfo = await couponServices.createCoupon(sellerId, req.body);
     res.status(couponInfo.status).json(couponInfo);
-};
+});
 
-const getAllCoupons = async (req, res) => {
-    const couponInfo = await couponService.getAllCoupons();
+const getAllCoupons = asyncErrorHandler(async (req, res) => {
+    const couponInfo = await couponServices.getAllCoupons();
     res.status(couponInfo.status).json(couponInfo);
-};
+});
 
-const getCouponById = async (req, res) => {
-    const couponInfo = await couponService.getCouponById(req.params.id);
+const getCouponById = asyncErrorHandler(async (req, res) => {
+    const couponInfo = await couponServices.getCouponById(req.params.id);
     res.status(couponInfo.status).json(couponInfo);
-};
+});
 
-const updateCoupon = async (req, res) => {
-    const updatedCoupon = await couponService.updateCoupon(req.params.id, req.body);
-    res.status(updateCoupon.status).json(updatedCoupon);
-};
+const updateCoupon = asyncErrorHandler(async (req, res) => {
+    let sellerId = req.userInfo.id;
+    const updatedCoupon = await couponServices.updateCoupon(sellerId, req.params.id, req.body);
+    res.status(updatedCoupon.status).json(updatedCoupon);
+});
 
-const deleteCoupon = async (req, res) => {
-    const deletedCoupon = await couponService.deleteCoupon(req.params.id);
+const deleteCoupon = asyncErrorHandler(async (req, res) => {
+    let sellerId = req.userInfo.id
+    const deletedCoupon = await couponServices.deleteCoupon(sellerId, req.params.id);
     res.status(deleteCoupon.status).json(deletedCoupon);
-};
+});
 
 export default {
     createCoupon,

@@ -3,7 +3,8 @@ import User from "./userModel.js";
 const couponSchema = new mongoose.Schema({
     code: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
     discount: {
         type: String,
@@ -34,9 +35,18 @@ const couponSchema = new mongoose.Schema({
         default: true
     }
 }, { timestamps: true })
-couponSchema.pre('save', async function (next) {
-    if (this.validTill - this.validFrom <= 0) this.isActive = false
+couponSchema.pre("validate", function (next) {
+    if (typeof this.validFrom === "string") {
+        this.validFrom = new Date(this.validFrom);
+    }
+    if (typeof this.validTill === "string") {
+        this.validTill = new Date(this.validTill);
+    }
+    if (this.validTill - this.validFrom <= 0) {
+        this.isActive = false;
+    }
     next();
-})
+});
+
 const Coupon = new mongoose.model("Coupon", couponSchema)
 export default Coupon;

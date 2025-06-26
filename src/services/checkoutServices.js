@@ -1,0 +1,26 @@
+import CustomError from "../middlewares/errorHandlers/customErrorHandler.js";
+import Cart from "../models/cart.js"
+import Coupon from "../models/couponModel.js";
+import Order from "../models/orderModel.js";
+
+const checkout = async (userId, cartId, couponCode) => {
+    const allItems = await Cart.findById(cartId).populate('items.productId');
+    if (allItems.userId != userId) throw new CustomError('this cart belongs to another user', 400)
+    const couponDetails = await Coupon.findOne({ code: couponCode })
+    let orignalAmount = 0;
+    let items = allItems.items.map((item) => {
+        orignalAmount += item.productId.price * item.quantity;
+        return { ...item, priceAtPurchase: item.productId.price }
+    })
+    let discountAmount = (orignalAmount * couponDetails.discount) / 100
+    let payableAmount = orignalAmount - (orignalAmount * couponDetails.discount) / 100
+    const newOrder = await Order.create({ buyerId: allItems.userId, items, couponCode, discountAmount, orignalAmount, totalAmount: payableAmount })
+    return {
+        order: newOrder._id,
+        payableAmount,
+        orignalAmount,
+        discountApplied: discountAmount,
+        paymentOption: ['upi', 'card', 'cod']
+    }
+}
+export default checkout

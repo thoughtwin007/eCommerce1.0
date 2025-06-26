@@ -22,6 +22,7 @@ const addToCart = async (userId, productId, quantity) => {
 const getCart = async (userId) => {
     let data = await Cart.findOne({ userId }).populate('items.productId');
     if (!data) throw new CustomError("cart is empty", 404)
+
     return {
         data,
         status: 200

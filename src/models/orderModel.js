@@ -37,8 +37,8 @@ const orderSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ["delivered", "cancelled", "dispatched", "confirmed"],
-        default: "confirmed"
+        enum: ["delivered", "cancelled", "dispatched", "confirmed", "pending"],
+        default: "pending"
     },
     cancelledBy: {
         type: mongoose.Schema.Types.ObjectId,
@@ -46,9 +46,9 @@ const orderSchema = new mongoose.Schema({
     },
     cancelReason: {
         type: String,
-        required: true
     }
 
 }, { timestamps: true })
+
 const Order = new mongoose.model("Order", orderSchema)
 export default Order;

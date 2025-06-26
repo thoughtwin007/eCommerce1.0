@@ -3,9 +3,7 @@ import CustomError from "./customErrorHandler.js";
 const islogedin = async (req, res, next) => {
     if (!req.headers.authorization) throw new CustomError("token not found", 404)
     let headToken = req.headers.authorization.split(' ')[1].trim()
-    console.log("headToken:", headToken)
     let decodedData = token.verifyToken(headToken)
-    console.log("decodedToken: ", decodedData)
     req.userInfo = decodedData;
     next();
 }

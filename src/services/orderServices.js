@@ -11,15 +11,25 @@ const getOrderById = async (orderId) => {
 }
 const getOrders = async (userId) => {
     console.log("userID: ", userId)
-    const allOrders = await Order.find().populate('buyerId');
+    const allOrders = await Order.find().populate('buyerId', "items.productId");
     console.log(userId)
     const roleBasedOrders = allOrders.filter((el) => {
-        return String(el.buyerId._id) === userId
+        if (el.buyerId.role === "buyer") return String(el.buyerId._id) === userId;
+        return string(el.items.productId.sellerId) === userId
     })
     return {
         status: 200,
         roleBasedOrders
     }
 }
+const cancelOrder = async (orderId, userId, reason) => {
+    const cancelReason = reason || null
+    const cancelledOrder = await Order.findByIdAndUpdate(orderId, { status: "cancelled", cancelledBy: userId, cancelReason })
+    return {
+        status: 200,
+        msg: "order Cancelled",
+        cancelledOrder
+    }
+}
 
-export default { getOrderById, getOrders }
+export default { getOrderById, getOrders, cancelOrder }

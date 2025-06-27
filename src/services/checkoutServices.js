@@ -14,6 +14,7 @@ const checkout = async (userId, cartId, couponCode) => {
     })
     let discountAmount = (orignalAmount * couponDetails.discount) / 100
     let payableAmount = orignalAmount - (orignalAmount * couponDetails.discount) / 100
+    await Order.deleteMany({ buyerId: userId })
     const newOrder = await Order.create({ buyerId: allItems.userId, items, couponCode, discountAmount, orignalAmount, totalAmount: payableAmount })
     return {
         order: newOrder._id,

@@ -4,9 +4,15 @@ const getOrderById = asyncErrorHandler(async (req, res) => {
     const orderDetails = await orderServices.getOrderById(req.params.id)
     res.status(orderDetails.status).json(orderDetails)
 })
-const getOrders = async (req, res) => {
+const getOrders = asyncErrorHandler(async (req, res) => {
     const roleBasedOrders = await orderServices.getOrders(req.userInfo.id)
     res.status(roleBasedOrders.status).json(roleBasedOrders)
-}
-
-export default { getOrderById, getOrders }
+})
+const cancelOrder = asyncErrorHandler(async (req, res) => {
+    const userId = req.userInfo.id;
+    const orderId = req.params.id;
+    const reason = req.body.reason
+    const cancelledOrderData = await orderServices.cancelOrder(orderId, userId, reason);
+    res.status(cancelledOrderData.status).json(cancelledOrderData)
+})
+export default { getOrderById, getOrders, cancelOrder }

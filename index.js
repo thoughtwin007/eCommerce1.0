@@ -4,6 +4,9 @@ import mongoose from "mongoose";
 import authrouter from "./src/routes/userRoutes.js";
 import productRoutes from "./src/routes/productRoutes.js"
 import cartRoutes from "./src/routes/cartRoutes.js"
+import couponRoutes from "./src/routes/couponRoutes.js"
+import checkoutRoutes from "./src/routes/checkoutRoute.js"
+import orderRoutes from "./src/routes/orderRoutes.js"
 const app = express();
 app.use(express.json())
 const port = process.env.PORT || 3000;
@@ -16,8 +19,10 @@ mongoose.connect(process.env.MONGO_URL).then(() => {
 })
 app.use("/api/v1/auth", authrouter);
 app.use('/api/v1/products', productRoutes);
-app.use('/api/v1/cart', cartRoutes)
-
+app.use('/api/v1/cart', cartRoutes);
+app.use('/api/v1/coupons', couponRoutes);
+app.use('/api/v1/checkout', checkoutRoutes)
+app.use('/api/v1/orders', orderRoutes)
 app.use((err, req, res, next) => {
     console.log("statusCode:", err.statusCode)
     const status = err.status || "Something went wrong";

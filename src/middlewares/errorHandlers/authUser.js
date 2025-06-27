@@ -1,4 +1,4 @@
-import token from "../../utils/accesToken/token.js";
+import token from "../../utils/token.js";
 import CustomError from "./customErrorHandler.js";
 const islogedin = async (req, res, next) => {
     if (!req.headers.authorization) throw new CustomError("token not found", 404)

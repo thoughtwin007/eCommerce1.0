@@ -10,7 +10,7 @@ const paymentSchema = new mongoose.Schema({
     },
     method: {
         type: String,
-        enum: ["upi", "card", "COD", "wallet"],
+        enum: ["upi", "card", "cod", "wallet"],
         required: true
     },
     refunded: {
@@ -22,5 +22,6 @@ const paymentSchema = new mongoose.Schema({
         default: null
     }
 }, { timestamps: true })
+
 const Payment = new mongoose.model("Payment", paymentSchema)
 export default Payment;

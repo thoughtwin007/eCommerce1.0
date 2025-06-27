@@ -1,6 +1,6 @@
 import CustomError from "../middlewares/errorHandlers/customErrorHandler.js"
 import User from "../models/userModel.js"
-import token from "../utils/accesToken/token.js"
+import token from "../utils/token.js"
 import sendMail from "../utils/mailer.js";
 const registerUser = async (info) => {
     console.log("user service invoked:", info);

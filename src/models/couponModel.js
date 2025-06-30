@@ -1,5 +1,6 @@
 import mongoose, { mongo } from "mongoose";
 import User from "./userModel.js";
+import CustomError from "../middlewares/errorHandlers/customErrorHandler.js";
 const couponSchema = new mongoose.Schema({
     code: {
         type: String,
@@ -33,18 +34,20 @@ const couponSchema = new mongoose.Schema({
     isActive: {
         type: Boolean,
         default: true
+    },
+    deletedAt: {
+        type: Date,
+        default: null
     }
 }, { timestamps: true })
-couponSchema.pre("validate", function (next) {
+couponSchema.pre("save", function (next) {
     if (typeof this.validFrom === "string") {
         this.validFrom = new Date(this.validFrom);
     }
     if (typeof this.validTill === "string") {
         this.validTill = new Date(this.validTill);
     }
-    if (this.validTill - this.validFrom <= 0) {
-        this.isActive = false;
-    }
+    if (this.validFrom < this.validTill) throw new CustomError('validFrom date should be less then valid till')
     next();
 });
 

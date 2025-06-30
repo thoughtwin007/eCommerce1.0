@@ -6,6 +6,7 @@ const payment = async (orderId, method) => {
     let orderDetails = await Order.findById(orderId)
     if (!orderDetails) throw new CustomError("order Not found for this Id ", 404)
     orderDetails = await Order.findByIdAndUpdate(orderId, { status: confirmed }, { new: true })
+
     let amount = orderDetails.totalAmount;
     const order = await Payment.create({
         orderId,

@@ -6,10 +6,12 @@ const register = asyncErrorHandler(async (req, res, next) => {
 
     let info = await userServices.registerUser(req.body)
 
-    console.log("info from register controller:", info)
-
-    res.status(info.status).json(info)
+    // console.log("info from register controller:", info)
+    if (info.deletedAt)
+        res.status(204).json(info)
+    res.status(200).json(info)
 })
+
 const login = asyncErrorHandler(async (req, res, next) => {
     let info = await userServices.loginUser(req.body)
     res.status(info.status).json(info)

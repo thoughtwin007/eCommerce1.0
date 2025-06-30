@@ -31,6 +31,9 @@ const productSchema = new mongoose.Schema({
     saleEnd: {
         type: Date,
         default: null
+    }, deletedAt: {
+        type: Date,
+        default: null
     }
 }, { timestamps: true })
 const Product = new mongoose.model("Product", productSchema)

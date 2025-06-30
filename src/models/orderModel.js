@@ -46,8 +46,11 @@ const orderSchema = new mongoose.Schema({
     },
     cancelReason: {
         type: String,
+    },
+    deletedAt: {
+        type: Date,
+        default: null
     }
-
 }, { timestamps: true })
 
 const Order = new mongoose.model("Order", orderSchema)

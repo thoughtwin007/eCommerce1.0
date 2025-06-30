@@ -25,6 +25,7 @@ const getOrders = async (userId) => {
 const cancelOrder = async (orderId, userId, reason) => {
     const cancelReason = reason || null
     const cancelledOrder = await Order.findByIdAndUpdate(orderId, { status: "cancelled", cancelledBy: userId, cancelReason })
+    if (!cancelledOrder) throw new CustomError('no order found for this Id', 404)
     return {
         status: 200,
         msg: "order Cancelled",

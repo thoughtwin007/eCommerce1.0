@@ -1,7 +1,7 @@
 import CustomError from "../middlewares/errorHandlers/customErrorHandler.js";
 import Product from "../models/productModel.js";
 const getAllProducts = async () => {
-    const products = await Product.find();
+    const products = await Product.find({ deletedAt: { $eq: null } });
     return {
         products,
         status: 200
@@ -9,7 +9,7 @@ const getAllProducts = async () => {
 };
 const getProductById = async (data) => {
     const product = await Product.findById(data);
-    if (!product) throw new CustomError("product not found", 404);
+    if (!product || product.deletedAt) throw new CustomError("product not found", 404);
     return {
         product,
         status: 200

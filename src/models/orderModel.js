@@ -37,7 +37,8 @@ const orderSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ["delivered", "cancelled", "dispatched", "confirmed", "pending"],
+        enum: ["delivered", "cancelled", "dispatched", "confirmed", "pending", "partiallyCancelled"
+        ],
         default: "pending"
     },
     cancelledBy: {
@@ -52,6 +53,41 @@ const orderSchema = new mongoose.Schema({
         default: null
     }
 }, { timestamps: true })
+// orderSchema.pre("save", async function (next) {
+//     // Populate productId inside each item
+//     await this.populate("items.productId");
+
+//     let originalAmount = 0;
+
+//     // Set priceAtPurchase from current product price
+//     this.items = this.items.map(item => {
+//         const product = item.productId;
+
+//         if (!product || !product.price) {
+//             throw new Error("Product information is missing or invalid");
+//         }
+
+//         const price = product.price;
+//         const quantity = item.quantity;
+
+//         originalAmount += price * quantity;
+
+//         return {
+//             ...item.toObject(),
+//             priceAtPurchase: price
+//         };
+//     });
+
+//     this.orignalAmount = originalAmount;
+
+//     if (this.discountAmount > 0) {
+//         this.totalAmount = originalAmount - this.discountAmount;
+//     } else {
+//         this.totalAmount = originalAmount;
+//     }
+
+//     next();
+// });
 
 const Order = new mongoose.model("Order", orderSchema)
 export default Order;

@@ -11,7 +11,7 @@ const createCoupon = async (sellerId, couponData) => {
 };
 
 const getAllCoupons = async () => {
-    const coupons = await Coupon.find();
+    const coupons = await Coupon.find({ deletedAt: { $eq: null } });
     return {
         status: 200,
         coupons
@@ -19,7 +19,7 @@ const getAllCoupons = async () => {
 };
 const getCouponById = async (id) => {
     const coupon = await Coupon.findById(id);
-    if (!coupon) throw new CustomError("coupon not found", 404)
+    if (!coupon || coupon.deletedAt) throw new CustomError("coupon not found", 404)
     return {
         status: 200,
         coupon

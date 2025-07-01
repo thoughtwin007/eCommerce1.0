@@ -34,20 +34,33 @@ userSchema.pre("save", async function (next) {
 userSchema.methods.comparePassword = async function (password) {
     return await bcrypt.compare(password, this.password);
 };
-userSchema.post('findByIdAndUpdate', async function (user) {
-    if (user?.role === 'seller') {
-        const sellerId = user?._id;
-        await Product.findByIdAndUpdate(sellerId, { deletedAt: Date.now() })
-        await Coupon.deleteMany({ sellerId })
-        await Cart.updateMany(
-            {},
-            { $pull: { items: { productId: { $in: await Product.find({ sellerId }).distinct('_id') } } } }
-        );
-    } else {
-        const buyerId = user?._id;
-        await Cart.deleteMany({ buyerId });
-        await Order.findByIdAndUpdate(buyerId, { deleteAt: Date.now() })
+userSchema.post('findOneAndUpdate', async function (user) {
+    if (user.deletedAt) {
+        if (user?.role === 'seller') {
+            const sellerId = user?._id;
+            await Product.updateMany({ sellerId }, { deletedAt: Date.now() })
+            await Coupon.updateMany({ sellerId }, { deletedAt: Date.now() })
+            await Cart.updateMany(
+                {},
+                { $pull: { items: { productId: { $in: await Product.find({ sellerId }).distinct('_id') } } } }
+            );
+        } else {
+            const buyerId = user?._id;
+            await Cart.deleteMany({ buyerId });
+            await Order.updateMany({ buyerId }, { deleteAt: Date.now() })
 
+        }
+    } else {
+        if (user?.role === 'seller') {
+            await Product.updateMany({ sellerId }, { deletedAt: null })
+            await Coupon.updateMany({ sellerId }, { deletedAt: null })
+        }
+    }
+})
+userSchema.post('findOneAndDelete', async function (user) {
+    if (user?.role === "seller") {
+        await Product.deleteMany({ sellerId })
+        await Coupon.deleteMany({ sellerId })
     }
 })
 const User = new mongoose.model("User", userSchema)

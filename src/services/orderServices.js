@@ -38,7 +38,7 @@ const cancelOrder = async (orderId, userId, role, reason) => {
         }
     }
     else {
-        for (el of order.items) {
+        for (let el of order.items) {
             if (el.productId.sellerId === userId) {
                 var productId = el.productId;
                 var discountFactor = (order.discountAmount / order.totalAmount) * 100
@@ -48,6 +48,7 @@ const cancelOrder = async (orderId, userId, role, reason) => {
             }
         }
         return {
+            status: 200,
             productId,
             refundedAmount,
             cancelledOrder

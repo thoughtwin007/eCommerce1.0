@@ -1,9 +1,9 @@
 import asyncErrorHandler from '../middlewares/errorHandlers/asyncErrorHandler.js';
 import cartService from "../services/cartServices.js"
 const addToCart = asyncErrorHandler(async (req, res) => {
-    const userId = req.userInfo.id;
+    const buyerId = req.userInfo.id;
     const { productId, quantity } = req.body;
-    const info = await cartService.addToCart(userId, productId, quantity);
+    const info = await cartService.addToCart(buyerId, productId, quantity);
     res.status(info.status).json(info);
 })
 

@@ -5,11 +5,10 @@ const redis = new Redis({
     port: 6379
 });
 
-(async () => {
-    await redis.set('key', 'value');
-    const value = await redis.get('key');
-    console.log(value); // → "value"
-
-    redis.disconnect();
-})();
+// (async () => {
+//     await redis.set('key', 'value');
+//     const value = await redis.get('key');
+//     console.log(value); // → "value"
+//     redis.disconnect();
+// })();
 export default redis;

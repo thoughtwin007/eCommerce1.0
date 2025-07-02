@@ -10,7 +10,7 @@ const itemsSchema = new mongoose.Schema({
     }
 })
 const cartSchema = new mongoose.Schema({
-    userId: {
+    buyerId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
     },

@@ -1,10 +1,10 @@
 import CustomError from "../middlewares/errorHandlers/customErrorHandler.js";
 import Cart from "../models/cart.js";
-const addToCart = async (userId, productId, quantity) => {
-    let cart = await Cart.findOne({ userId });
+const addToCart = async (buyerId, productId, quantity) => {
+    let cart = await Cart.findOne({ buyerId });
 
     if (!cart) {
-        cart = new Cart({ userId, items: [] });
+        cart = new Cart({ buyerId, items: [] });
     }
 
     const itemIndex = cart.items.findIndex(item => item.productId.equals(productId));
@@ -19,9 +19,9 @@ const addToCart = async (userId, productId, quantity) => {
     return { status: 200, cart };
 }
 
-const getCart = async (userId) => {
-    let data = await Cart.findOne({ userId }).populate('items.productId');
-    if (!data) throw new CustomError("cart is empty", 404)
+const getCart = async (buyerId) => {
+    let data = await Cart.findOne({ buyerId }).populate('items.productId');
+    if (!data || !data.items.length) throw new CustomError("cart is empty", 404)
 
     return {
         data,
@@ -29,8 +29,8 @@ const getCart = async (userId) => {
     }
 }
 
-const updateItemQuantity = async (userId, productId, quantity) => {
-    const cart = await Cart.findOne({ userId });
+const updateItemQuantity = async (buyerId, productId, quantity) => {
+    const cart = await Cart.findOne({ buyerId });
 
     if (!cart) throw new CustomError("Cart not found", 404);
     console.log("productId :", productId)
@@ -46,9 +46,8 @@ const updateItemQuantity = async (userId, productId, quantity) => {
     }
 }
 
-const removeItem = async (userId, productId) => {
-    const cart = await Cart.findOne({ userId });
-
+const removeItem = async (buyerId, productId) => {
+    const cart = await Cart.findOne({ buyerId });
     if (!cart) throw new CustomError("Cart not found", 404);
     cart.items = cart.items.filter(item => !item.productId.equals(productId));
     await cart.save();

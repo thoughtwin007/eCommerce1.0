@@ -24,7 +24,7 @@ app.use('/api/v1/coupons', couponRoutes);
 app.use('/api/v1/checkout', checkoutRoutes)
 app.use('/api/v1/orders', orderRoutes)
 app.use((err, req, res, next) => {
-    console.log("statusCode:", err.statusCode)
+    // console.log("statusCode:", err.statusCode)
     const status = err.status || "Something went wrong";
     const msg = err.message || "Something went wrong";
     console.log("msg:", msg)

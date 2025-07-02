@@ -35,9 +35,12 @@ userSchema.methods.comparePassword = async function (password) {
     return await bcrypt.compare(password, this.password);
 };
 userSchema.post('findOneAndUpdate', async function (user) {
+    console.log('userId: ', user._id)
+    const sellerId = user?._id;
+    const buyerId = user?._id;
     if (user.deletedAt) {
         if (user?.role === 'seller') {
-            const sellerId = user?._id;
+            console.log('post middleware called')
             await Product.updateMany({ sellerId }, { deletedAt: Date.now() })
             await Coupon.updateMany({ sellerId }, { deletedAt: Date.now() })
             await Cart.updateMany(
@@ -45,13 +48,13 @@ userSchema.post('findOneAndUpdate', async function (user) {
                 { $pull: { items: { productId: { $in: await Product.find({ sellerId }).distinct('_id') } } } }
             );
         } else {
-            const buyerId = user?._id;
             await Cart.deleteMany({ buyerId });
             await Order.updateMany({ buyerId }, { deleteAt: Date.now() })
 
         }
     } else {
         if (user?.role === 'seller') {
+
             await Product.updateMany({ sellerId }, { deletedAt: null })
             await Coupon.updateMany({ sellerId }, { deletedAt: null })
         }

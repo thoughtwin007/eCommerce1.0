@@ -47,7 +47,7 @@ couponSchema.pre("save", function (next) {
     if (typeof this.validTill === "string") {
         this.validTill = new Date(this.validTill);
     }
-    if (this.validFrom < this.validTill) throw new CustomError('validFrom date should be less then valid till')
+    if (this.validFrom > this.validTill) throw new CustomError('validFrom date should be less then valid till')
     next();
 });
 

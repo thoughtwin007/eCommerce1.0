@@ -1,5 +1,6 @@
 import CustomError from "../middlewares/errorHandlers/customErrorHandler.js";
 import Cart from "../models/cart.js";
+import redis from "../utils/redis.js";
 const addToCart = async (buyerId, productId, quantity) => {
     let cart = await Cart.findOne({ buyerId });
 
@@ -15,30 +16,37 @@ const addToCart = async (buyerId, productId, quantity) => {
         cart.items.push({ productId, quantity });
     }
 
-    await cart.save();
+    cart.save().then(async (data) => {
+        await redis.set('cart', JSON.stringify(data))
+    });
     return { status: 200, cart };
 }
 
 const getCart = async (buyerId) => {
-    let data = await Cart.findOne({ buyerId }).populate('items.productId');
-    if (!data || !data.items.length) throw new CustomError("cart is empty", 404)
-
+    let data = JSON.parse(await redis.get('cart'))
+    if (!data) {
+        console.log('no redis')
+        data = await Cart.findOne({ buyerId }).populate('items.productId');
+        if (!data || !data.items.length) throw new CustomError("cart is empty", 404)
+        await redis.set('cart', JSON.stringify(data))
+    }
     return {
+        status: true,
         data,
-        status: 200
     }
 }
 
 const updateItemQuantity = async (buyerId, productId, quantity) => {
     const cart = await Cart.findOne({ buyerId });
-
     if (!cart) throw new CustomError("Cart not found", 404);
     console.log("productId :", productId)
     const item = cart.items.find(item => item.productId.equals(productId));
     if (!item) throw new CustomError("Item not in cart", 404);
 
     item.quantity = quantity;
-    await cart.save();
+    cart.save().then(async (data) => {
+        await redis.set('cart', JSON.stringify(data))
+    });
     return {
         cart,
         status: 200,
@@ -50,7 +58,9 @@ const removeItem = async (buyerId, productId) => {
     const cart = await Cart.findOne({ buyerId });
     if (!cart) throw new CustomError("Cart not found", 404);
     cart.items = cart.items.filter(item => !item.productId.equals(productId));
-    await cart.save();
+    cart.save().then(async (data) => {
+        await redis.set('cart', JSON.stringify(data))
+    });
     return { cart, status: 200, msg: 'item removed from cart' }
 }
 

@@ -5,11 +5,11 @@ const getOrderById = asyncErrorHandler(async (req, res) => {
     res.status(orderDetails.status).json(orderDetails)
 })
 const getOrders = asyncErrorHandler(async (req, res) => {
-    const roleBasedOrders = await orderServices.getOrders(req.userInfo.id)
+    const roleBasedOrders = await orderServices.getOrders(req.userInfo.id, req.userInfo.role)
     res.status(roleBasedOrders.status).json(roleBasedOrders)
 })
 const cancelOrder = asyncErrorHandler(async (req, res) => {
-    const { userId, role } = req.userInfo;
+    const { id: userId, role } = req.userInfo;
     const orderId = req.params.id;
     const reason = req.body.reason
     const cancelledOrderData = await orderServices.cancelOrder(orderId, userId, role, reason);

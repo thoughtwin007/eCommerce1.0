@@ -3,11 +3,9 @@ import User from "../models/userModel.js"
 import redis from "../utils/redis.js";
 import token from "../utils/token.js"
 const registerUser = async (info) => {
-    // console.log("user service invoked:", info);
     let strInfo = JSON.stringify(info)
     await redis.set('registrationInfo', strInfo)
     const existingUser = await User.findOne({ email: info.email });
-    console.log("deletedAt: ", existingUser?.deletedAt)
     if (existingUser) {
         if (existingUser.deletedAt) return {
             msg: 'this account was deleted before, want to continue with your old data',
@@ -28,8 +26,9 @@ const registerWithOutRecover = async () => {
     let user = await User.findOne({ email: parsedData.email })
     if (!user.deletedAt) throw new CustomError('account already present', 400)
     await User.findOneAndDelete({ email: parsedData.email })
-    const newUser = await User.create(parsedData);
+    const newUser = await User.create(parsedData).select("-password");
     let newToken = token.genToken(newUser)
+    await redis.del('registrationInfo')
     return {
         ...newUser.toObject(),
         msg: "User registered successfully",
@@ -41,8 +40,9 @@ const registerAndRecover = async (email, password) => {
     if (!user) throw new CustomError("user with this email doesn't exist", 404)
     let chkPassword = await user.comparePassword(password)
     if (!chkPassword) throw new CustomError('incorrect password', 400)
-    user = await User.findOneAndUpdate({ email }, { deletedAt: null })
+    user = await User.findOneAndUpdate({ email }, { deletedAt: null }).select("-password")
     let newToken = token.genToken(user)
+    await redis.del('registrationInfo')
     return {
         status: true,
         ...user.toObject(),

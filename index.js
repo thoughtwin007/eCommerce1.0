@@ -24,10 +24,10 @@ app.use('/api/v1/coupons', couponRoutes);
 app.use('/api/v1/checkout', checkoutRoutes)
 app.use('/api/v1/orders', orderRoutes)
 app.use((err, req, res, next) => {
-    // console.log("statusCode:", err.statusCode)
+    const statusCode = err.statusCode || 400
     const status = err.status || "Something went wrong";
     const msg = err.message || "Something went wrong";
     console.log("msg:", msg)
-    res.json({ status, msg, stack: err.stack });
+    res.status(statusCode).json({ status, msg, stack: err.stack });
 });
 

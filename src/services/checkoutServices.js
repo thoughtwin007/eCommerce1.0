@@ -8,21 +8,23 @@ const validateCoupon = (couponDetails) => {
     if (todayDate > couponDetails.validTill || todayDate < couponDetails.validFrom) throw new CustomError('coupon validity expired or coupon may have not been activated now', 400)
 }
 const checkout = async (buyerId, couponCode) => {
-    console.log('buyerId: ', buyerId)
-    const allItems = await Cart.findOne({ buyerId }).populate('items.productId');
-    if (!allItems) throw new CustomError('cart is empty', 404)
-    if (allItems.buyerId != buyerId) throw new CustomError('this cart belongs to another user', 400)
+    let data = await redis.get('cart')
+    if (!data) throw new CustomError('cart is empty', 404)
+    // const allItems = await Cart.findOne({ buyerId }).populate('items.productId');
+    // if (!allItems) throw new CustomError('cart is empty', 404)
+    if (data.buyerId != buyerId) throw new CustomError('this cart belongs to another user', 400)
     const couponDetails = await Coupon.findOne({ code: couponCode })
     validateCoupon(couponDetails)
     let orignalAmount = 0;
-    let items = allItems.items.map((item) => {
+    let items = data.items.map((item) => {
         orignalAmount += item.productId.price * item.quantity;
         return { ...item, priceAtPurchase: item.productId.price }
     })
     let discountAmount = (orignalAmount * couponDetails.discount) / 100
     let payableAmount = orignalAmount - (orignalAmount * couponDetails.discount) / 100
-    const newOrder = await Order.create({ buyerId: allItems.buyerId, items, couponCode, discountAmount, orignalAmount, totalAmount: payableAmount })
-    await Cart.findOneAndDelete({ _id: allItems._id })
+    const newOrder = await Order.create({ buyerId: data.buyerId, items, couponCode, discountAmount, orignalAmount, totalAmount: payableAmount })
+    await Cart.findOneAndDelete({ _id: data._id })
+    await redis.del('cart')
     return {
         order: newOrder._id,
         payableAmount,

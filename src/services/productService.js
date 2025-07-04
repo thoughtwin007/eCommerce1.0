@@ -48,9 +48,9 @@ const updateProduct = async (productId, sellerId, updatedData) => {
 };
 const deleteProduct = async (productId, sellerId) => {
     const productInfo = await Product.findById(productId)
-    if (productInfo.sellerId != sellerId) throw new CustomError("product belongs to another seller", 400)
-    const product = await Product.findByIdAndDelete(productId).select(_id);
-    if (!product) throw new CustomError('product not found', 404)
+    if (!productInfo) throw new CustomError('product not found', 404)
+    if (productInfo?.sellerId != sellerId) throw new CustomError("product belongs to another seller", 400)
+    const product = await Product.findByIdAndUpdate(productId, { deletedAt: new Date() });
     return {
         productId: product.id,
         msg: "product deleted",

@@ -4,7 +4,7 @@ import redis from "../utils/redis.js";
 import token from "../utils/token.js"
 const registerUser = async (info) => {
     let strInfo = JSON.stringify(info)
-    await redis.set('registrationInfo', strInfo)
+    await redis.set(`registrationInfo:${info.email}`, strInfo)
     const existingUser = await User.findOne({ email: info.email });
     if (existingUser) {
         if (existingUser.deletedAt) return {

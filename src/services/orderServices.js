@@ -36,6 +36,8 @@ const cancelOrder = async (orderId, userId, role, reason) => {
     const order = await Order.findById(orderId).populate('items.productId');
     if (!order) throw new CustomError('no order found for this Id', 404)
     const cancelReason = reason || null
+
+
     if (!order.status === "cancelled" || !order.status === "dispatched") {
         if (role != "seller") {
             if (order.buyerId != userId) throw new CustomError("this order doesn't belongs to you", 400)

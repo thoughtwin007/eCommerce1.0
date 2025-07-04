@@ -13,9 +13,7 @@ const port = process.env.PORT || 3000;
 
 console.log(process.env.MONGO_URL)
 mongoose.connect(process.env.MONGO_URL).then(() => {
-    app.listen(process.env.PORT, () => {
-        console.log("server is listening on port:", port)
-    })
+    console.log('DB CONNECTION SUCCESS')
 })
 app.use("/api/v1/auth", authrouter);
 app.use('/api/v1/products', productRoutes);
@@ -31,3 +29,18 @@ app.use((err, req, res, next) => {
     res.status(statusCode).json({ status, msg, stack: err.stack });
 });
 
+
+
+const server = app.listen(process.env.PORT, () => {
+    console.log("server is listening on port:", port)
+})
+
+server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+        console.error(`❌ Port ${port} is already in use.`);
+        process.exit(1);
+    } else {
+        console.error('❌ Server error:', err);
+        process.exit(1);
+    }
+});

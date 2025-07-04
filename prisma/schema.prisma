@@ -1,0 +1,123 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                            Int        @id @default(autoincrement())
+  title                         Title?
+  designation                   String?
+  first                         String
+  last                          String
+  phone                         String     @unique
+  username                      String     @unique
+  email                         String     @unique
+  password                      String
+  otp                           String?    @unique
+  otp_expires_at                DateTime?
+  created_at                    DateTime   @default(now())
+  updated_at                    DateTime   @updatedAt
+  deleted_at                    DateTime?
+  last_login                    DateTime?
+  degree                        String?
+  is_active                     Boolean    @default(true)
+  is_verified                   Boolean    @default(false)
+  password_changed_at           DateTime   @default(now())
+  password_reset_otp            String?    @unique
+  password_reset_otp_expires_at DateTime?
+  role                          Role
+  Timeslot                      Timeslot[]
+
+  Patient_Meeting Meeting[] @relation("patient")
+  Doctor_Meeting  Meeting[] @relation("doctor")
+
+  messages         Message[] @relation("senderMessages")
+  receivedMessages Message[] @relation("receiverMessages")
+}
+
+model Timeslot {
+  id         Int              @id @default(autoincrement())
+  doctor_id  Int
+  weekday    Weekday
+  start_time DateTime
+  end_time   DateTime
+  mode       ConsultationMode
+  created_at DateTime         @default(now())
+  doctor     User             @relation(fields: [doctor_id], references: [id])
+
+  @@unique([doctor_id, weekday, start_time, end_time], name: "unique_doctor_slot")
+}
+
+model Meeting {
+  id         Int           @id @default(autoincrement())
+  meeting_id String        @unique
+  topic      String
+  agenda     String?
+  join_url   String
+  password   String
+  start_time String
+  duration   Int
+  timezone   String
+  status     MeetingStatus @default(PENDING)
+  created_at DateTime
+  updated_at DateTime      @updatedAt()
+
+  patient    User @relation("patient", fields: [patient_id], references: [id])
+  patient_id Int
+
+  doctor    User @relation("doctor", fields: [doctor_id], references: [id])
+  doctor_id Int
+}
+
+model Message {
+  id          Int      @id @default(autoincrement())
+  sender_Id   Int
+  receiver_Id Int
+  text        String
+  room_id     String
+  created_at  DateTime @default(now())
+
+  sender   User @relation("senderMessages", fields: [sender_Id], references: [id])
+  receiver User @relation("receiverMessages", fields: [receiver_Id], references: [id])
+  // @@index([sender_Id, receiver_Id, created_at], name: "message_index")
+
+  @@index([room_id, created_at], name: "by_room_and_time")
+}
+
+enum Role {
+  DOCTOR
+  PATIENT
+}
+
+enum Title {
+  DR
+  MR
+  MRS
+  MISS
+  OTHER
+}
+
+enum Weekday {
+  SUNDAY
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+}
+
+enum ConsultationMode {
+  ONLINE
+  OFFLINE
+}
+
+enum MeetingStatus {
+  PENDING
+  CANCELLED
+  COMPLETED
+}
